@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+
+# Modified by Chang Jo Kim for showing labels
+#   def bboxes_draw_on_img(img, classes, scores, bboxes, colors, class2label, thickness=2):
+
 import cv2
 import random
 
@@ -65,7 +69,7 @@ def draw_bbox(img, bbox, shape, label, color=[255, 0, 0], thickness=2):
     cv2.putText(img, str(label), p1[::-1], cv2.FONT_HERSHEY_DUPLEX, 0.5, color, 1)
 
 
-def bboxes_draw_on_img(img, classes, scores, bboxes, colors, thickness=2):
+def bboxes_draw_on_img(img, classes, scores, bboxes, colors, class2label, thickness=2, caption="", location=(0, 0)):
     shape = img.shape
     for i in range(bboxes.shape[0]):
         bbox = bboxes[i]
@@ -75,9 +79,10 @@ def bboxes_draw_on_img(img, classes, scores, bboxes, colors, thickness=2):
         p2 = (int(bbox[2] * shape[0]), int(bbox[3] * shape[1]))
         cv2.rectangle(img, p1[::-1], p2[::-1], color, thickness)
         # Draw text...
-        s = '%s/%.3f' % (classes[i], scores[i])
+        s = '%s/%.3f' % (class2label[classes[i]], scores[i])
         p1 = (p1[0]-5, p1[1])
-        cv2.putText(img, s, p1[::-1], cv2.FONT_HERSHEY_DUPLEX, 0.4, color, 1)
+        cv2.putText(img, s, p1[::-1], cv2.FONT_HERSHEY_DUPLEX, 0.8, color, 1)
+
 
 
 # =========================================================================== #
