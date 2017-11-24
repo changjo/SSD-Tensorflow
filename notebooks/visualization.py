@@ -84,6 +84,32 @@ def bboxes_draw_on_img(img, classes, scores, bboxes, colors, class2label, thickn
         cv2.putText(img, s, p1[::-1], cv2.FONT_HERSHEY_DUPLEX, 0.8, color, 1)
 
 
+def crop_img(img, classes, bboxes, crop_class):
+    shape = img.shape
+    imgs = []
+    for i in range(bboxes.shape[0]):
+        if crop_class == classes[i]:
+            bbox = bboxes[i]
+
+            p1 = (int(bbox[0] * shape[0]), int(bbox[1] * shape[1]))
+            p2 = (int(bbox[2] * shape[0]), int(bbox[3] * shape[1]))
+
+            y_min, x_min = p1
+            y_max, x_max = p2
+            y_min, x_min = max(y_min, 0), max(x_min, 0)
+            y_max, x_max = min(y_max, shape[0]), min(x_max, shape[1])
+
+            print(y_min, x_min, y_max, x_max)
+            crop_img = img[y_min:y_max, x_min:x_max]
+            imgs.append(crop_img)
+            
+            # cv2.rectangle(img, p1[::-1], p2[::-1], color, thickness)
+            # Draw text...
+            # s = '%s/%.3f' % (class2label[classes[i]], scores[i])
+            # p1 = (p1[0]-5, p1[1])
+            # cv2.putText(img, s, p1[::-1], cv2.FONT_HERSHEY_DUPLEX, 0.8, color, 1)
+
+    return imgs
 
 # =========================================================================== #
 # Matplotlib show...

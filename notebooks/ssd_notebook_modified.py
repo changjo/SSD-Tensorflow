@@ -121,11 +121,8 @@ class2label = {}
 for key in VOC_LABELS.keys():
     class2label[VOC_LABELS[key][0]] = key
 
-
-
 USE_WEBCAM = True
-
-
+CROP = True
 
 if USE_WEBCAM:
 
@@ -147,7 +144,6 @@ if USE_WEBCAM:
         #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         img = frame
-        
         rclasses, rscores, rbboxes =  process_image(img)
         
         '''
@@ -160,28 +156,12 @@ if USE_WEBCAM:
         
         visualization.bboxes_draw_on_img(img, rclasses, rscores, rbboxes, visualization.colors_tableau, class2label, thickness=2)
 
-
-        # Put text on the frame
-        caption = u"Hello"
-        location = (100, 100)
-        font = cv2.FONT_HERSHEY_DUPLEX
-        scale = 1
-        color = (0, 0, 255)
-        #cv2.putText(img, caption, location, font, scale, color, 1)
-
-        #cv2.addText(img, caption, location, font)
-
         # Display the resulting frame
-        if cnt == 0:
-            cv2.imshow('frame', img)
-            cnt = 1
-
-        key = cv2.waitKey(10) & 0xFF
-        if key == ord('r'):
-            cv2.imshow('frame', img)
-
-        if key == ord('q'):
+        cv2.imshow('frame', img)
+        
+        if cv2.waitKey(10) & 0xFF == ord('q'):
             break
+
 
     # When everything done, release the capture
     cap.release()
@@ -191,56 +171,54 @@ if USE_WEBCAM:
 else:
     #img = cv2.imread('messi5.jpg',0)
 
-    path = '../demo/'
-    image_names = sorted(os.listdir(path))
+    path = '/media/airc/HDD_2TB/data/keti_people/2/'
+    image_names = sorted([f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))])
     print(image_names)
     #image_name = path + image_names[-2]
-    image_name = '../demo/flowers-248822_640.jpg'
+    # image_name = '../demo/flowers-248822_640.jpg'
     
-    img = cv2.imread(image_name, 1)
-    #img = cv2.imread('police-car-406893_1920.jpg', 1)
-    rclasses, rscores, rbboxes =  process_image(img)
+    i = 0
+    while i < len(image_names):
+        image_name = image_names[i]
+        head, ext = os.path.splitext(image_name)
+        img = cv2.imread(os.path.join(path, image_name), 1)
+        #img = cv2.imread('police-car-406893_1920.jpg', 1)
+        rclasses, rscores, rbboxes =  process_image(img)
 
-    # visualization.bboxes_draw_on_img(img, rclasses, rscores, rbboxes, visualization.colors_plasma)
-    #visualization.plt_bboxes(img, rclasses, rscores, rbboxes)
-    visualization.bboxes_draw_on_img(img, rclasses, rscores, rbboxes, visualization.colors_tableau, class2label, thickness=2)
+        print(image_name)
+        print(rclasses)
+        # visualization.bboxes_draw_on_img(img, rclasses, rscores, rbboxes, visualization.colors_plasma)
+        #visualization.plt_bboxes(img, rclasses, rscores, rbboxes)
 
-    # # Put text on the frame
-    # caption = u"Hello"
-    # location = (100, 100)
-    # scale = 1
-    # color = (0, 0, 255)
-    # font = QFont()
-    # font.setFamily('Times')
-    # font.setPointSize(10)
+        if CROP:
+            imgs = visualization.crop_img(img, rclasses, rbboxes, crop_class=15)
+        else:
+            visualization.bboxes_draw_on_img(img, rclasses, rscores, rbboxes, visualization.colors_tableau, class2label, thickness=2)
 
-    # #cv2.putText(img, caption, location, font, scale, color, 1)
+        if CROP:
+            j = 0
+            while j < len(imgs):
+                #cv2.imshow('image', imgs[j])
+                crop_image_name = os.path.join(os.path.join(path, 'crop'), head + '_crop_' + str(j) + ext)
+                j += 1
+                if cv2.waitKey(0) == ord('n'):
+                    j += 1
+                elif cv2.waitKey(0) & 0xFF == ord('q'):
+                    break
+            i += 1
+        else:
+            if img is not None:
+                cv2.imshow('image', img)
+            if img is None or cv2.waitKey(0) == ord('n'):
+                i += 1
+            elif cv2.waitKey(0) & 0xFF == ord('q'):
+                break
 
-    # cv2.addText(img, caption, location, font)
-
-    ## For Displaying Korean
-    from PIL import Image, ImageDraw, ImageFont
-
-    font_size = 36
-    font_color = (0, 0, 0)
-    caption = u' '
-    unicode_font = ImageFont.truetype("NanumGothic.ttf", font_size)
-
-    pil_image = Image.open(image_name).convert('RGB')
-    draw = ImageDraw.Draw(pil_image)
-    draw.text ( (10,10), caption, font=unicode_font, fill=font_color )
-    open_cv_image = np.array(pil_image)
-    open_cv_image = open_cv_image[:, :, ::-1].copy()
-
-    visualization.bboxes_draw_on_img(open_cv_image, rclasses, rscores, rbboxes, visualization.colors_tableau, class2label, thickness=2)
-    ##
-
-    #cv2.imshow('image', img)
-    cv2.imshow('image', open_cv_image)
-    cv2.waitKey(0) & 0xFF == ord('q')
     cv2.destroyAllWindows()
-
 # ----------------------------------------------------------------------------
+
+
+
 
 '''
 # Test on some demo image and visualize output.
