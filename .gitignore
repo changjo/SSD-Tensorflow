@@ -22,6 +22,14 @@ nohup.out
 ssd-tensorflow.sublime-workspace
 ssd-tensorflow.sublime-project
 
+# pycharm
+.idea
+
+# python
+*.pyc
+
+# custom
 people_classification/data/
 people_classification/checkpoints/
-
+logs*
+tfrecords*
